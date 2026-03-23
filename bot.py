@@ -61,8 +61,8 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     uid = update.effective_user.id
     db.register_user(uid, update.effective_user.username or "")
     await update.message.reply_text(
-        "👋 Welcome! Use /code <email> to fetch the latest email sent to that address.\n"
-        "Example: /code you@domain.com"
+        "👋 Welcome! Glad to have you here.\n\n"
+        "Use /help to see all available commands and how to use them."
     )
 
 
@@ -82,13 +82,12 @@ async def code(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # Check if this email is registered in the bot
     if not db.is_email_registered(target_email):
         await update.message.reply_text(
-            f"❌ No account registered for *{target_email}*.\n"
-            "Please contact an admin to register this address.",
+            f"❌ No account registered for *{target_email}*.",
             parse_mode="Markdown",
         )
         return
 
-    await update.message.reply_text(f"🔍 Fetching latest email for *{target_email}*…", parse_mode="Markdown")
+    await update.message.reply_text(f"🔍 Fetching latest code for *{target_email}*…", parse_mode="Markdown")
 
     try:
         result = fetch_latest_email_for_address(target_email)
@@ -241,8 +240,21 @@ async def adminhelp(update: Update, context: ContextTypes.DEFAULT_TYPE):
 # Unknown command fallback
 # ─────────────────────────────────────────────
 
+async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if await guard(update):
+        return
+    text = (
+        "📖 *Available Commands*\n\n"
+        "/start — Register and start using the bot\n"
+        "/code `<email>` — Fetch the latest 6-digit code sent to that email address\n\n"
+        "_Example:_ `/code you@domain.com`\n\n"
+        "If the email address hasn't been registered by an admin, you'll get an error. "
+        "Reach out to the admin to get your address added."
+    )
+    await update.message.reply_text(text, parse_mode="Markdown")
+
 async def unknown(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("❓ Unknown command. Use /code <email> to fetch emails.")
+    await update.message.reply_text("❓ Unknown command. Use /help to get more info.")
 
 
 # ─────────────────────────────────────────────
@@ -254,6 +266,7 @@ def main():
 
     # User
     app.add_handler(CommandHandler("start", start))
+    app.add_handler(CommandHandler("help", help_command))
     app.add_handler(CommandHandler("code", code))
 
     # Admin
