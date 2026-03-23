@@ -104,7 +104,7 @@ async def code(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
         code_found = extract_code(result["body"])
 
-        if code_found:
+       if code_found:
     msg = f"✅ Code: `{code_found}`"
 else:
     msg = (
@@ -112,6 +112,8 @@ else:
         f"*Subject:* {result['subject']}\n"
         f"*From:* {result['sender']}"
     )
+
+await update.message.reply_text(msg, parse_mode="Markdown")
 
 await update.message.reply_text(msg, parse_mode="Markdown")
 
