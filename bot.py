@@ -99,7 +99,7 @@ async def code(update: Update, context: ContextTypes.DEFAULT_TYPE):
     try:
         result = fetch_latest_email_for_address(target_email)
         if result is None:
-            await update.message.reply_text(f"📭 No emails found addressed to *{target_email}*.", parse_mode="Markdown")
+            await update.message.reply_text(f"📭 No emails found.", parse_mode="Markdown")
             return
 
         code_found = extract_code(result["body"])
