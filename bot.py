@@ -90,7 +90,7 @@ async def code(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await update.message.reply_text(f"📭 No emails found addressed to *{target_email}*.", parse_mode="Markdown")
             return
 
-        # Extract the first 6-digit code from the email body
+        # Extract only the first 6-digit code from the email body
 match = re.search(r'\b\d{6}\b', result['body'])
 if match:
     code = match.group()
@@ -98,7 +98,7 @@ if match:
 else:
     msg = f"⚠️ No 6-digit code found in the latest email for *{target_email}*."
 
-        await update.message.reply_text(msg, parse_mode="Markdown")
+await update.message.reply_text(msg, parse_mode="Markdown")
 
     except Exception as e:
         logger.error("Error fetching email: %s", e)
