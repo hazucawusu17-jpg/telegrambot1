@@ -90,15 +90,13 @@ async def code(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await update.message.reply_text(f"📭 No emails found addressed to *{target_email}*.", parse_mode="Markdown")
             return
 
-        msg = (
-            f"📧 *Latest email for {target_email}*\n\n"
-            f"*From:* {result['sender']}\n"
-            f"*Date:* {result['date']}\n"
-            f"*Subject:* {result['subject']}\n\n"
-            f"*Body:*\n{result['body'][:1500]}"
-        )
-        if len(result["body"]) > 1500:
-            msg += "\n\n_(message truncated)_"
+        # Extract the first 6-digit code from the email body
+match = re.search(r'\b\d{6}\b', result['body'])
+if match:
+    code = match.group()
+    msg = f"🔑 6-digit code for *{target_email}*: `{code}`"
+else:
+    msg = f"⚠️ No 6-digit code found in the latest email for *{target_email}*."
 
         await update.message.reply_text(msg, parse_mode="Markdown")
 
