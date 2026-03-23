@@ -106,13 +106,14 @@ async def code(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
         if code_found:
     msg = f"✅ Code: `{code_found}`"
-            )
-        else:
-            msg = (
-                f"⚠️ No code found. Please try resending the code. `{target_email}`\n\n"
-                f"*Subject:* {result['subject']}\n"
-                f"*From:* {result['sender']}"
-            )
+else:
+    msg = (
+        f"⚠️ No code found. Please try resending the code. `{target_email}`\n\n"
+        f"*Subject:* {result['subject']}\n"
+        f"*From:* {result['sender']}"
+    )
+
+await update.message.reply_text(msg, parse_mode="Markdown")
 
         await update.message.reply_text(msg, parse_mode="Markdown")
 
