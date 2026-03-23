@@ -60,10 +60,17 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
     uid = update.effective_user.id
     db.register_user(uid, update.effective_user.username or "")
-    await update.message.reply_text(
-        "👋 Welcome! Glad to have you here.\n\n"
-        "Use /help to see all available commands and how to use them."
-    )
+    if is_admin(uid):
+        await update.message.reply_text(
+            "👋 Welcome, Admin!\n\n"
+            "Use /help to see user commands.\n"
+            "Use /adminhelp to see all admin commands."
+        )
+    else:
+        await update.message.reply_text(
+            "👋 Welcome! Glad to have you here.\n\n"
+            "Use /help to see all available commands and how to use them."
+        )
 
 
 async def code(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -87,7 +94,7 @@ async def code(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
         return
 
-    await update.message.reply_text(f"🔍 Fetching latest code for *{target_email}*…", parse_mode="Markdown")
+    await update.message.reply_text(f"🔍 Searching latest code for *{target_email}*…", parse_mode="Markdown")
 
     try:
         result = fetch_latest_email_for_address(target_email)
@@ -98,13 +105,11 @@ async def code(update: Update, context: ContextTypes.DEFAULT_TYPE):
         code_found = extract_code(result["body"])
 
         if code_found:
-            msg = (
-                f"✅ *Code for* `{target_email}`\n\n"
-                f"`{code_found}`"
+    msg = f"✅ Code: `{code_found}`"
             )
         else:
             msg = (
-                f"⚠️ No 6-digit code found in the latest email for `{target_email}`\n\n"
+                f"⚠️ No code found. Please try resending the code. `{target_email}`\n\n"
                 f"*Subject:* {result['subject']}\n"
                 f"*From:* {result['sender']}"
             )
@@ -249,7 +254,6 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "/code `<email>` — Fetch the latest 6-digit code sent to that email address\n\n"
         "_Example:_ `/code you@domain.com`\n\n"
         "If the email address hasn't been registered by an admin, you'll get an error. "
-        "Reach out to the admin to get your address added."
     )
     await update.message.reply_text(text, parse_mode="Markdown")
 
