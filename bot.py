@@ -98,19 +98,19 @@ async def code(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
         code_found = extract_code(result["body"])
 
-if code_found:
-    msg = (
-        f"✅ *Code for* `{target_email}`\n\n"
-        f"`{code_found}`"
-    )
-else:
-    msg = (
-        f"⚠️ No code found in the latest email for `{target_email}`\n\n"
-        f"*Subject:* {result['subject']}\n"
-        f"*From:* {result['sender']}"
-    )
+        if code_found:
+            msg = (
+                f"✅ *Code for* `{target_email}`\n\n"
+                f"`{code_found}`"
+            )
+        else:
+            msg = (
+                f"⚠️ No 6-digit code found in the latest email for `{target_email}`\n\n"
+                f"*Subject:* {result['subject']}\n"
+                f"*From:* {result['sender']}"
+            )
 
-await update.message.reply_text(msg, parse_mode="Markdown")
+        await update.message.reply_text(msg, parse_mode="Markdown")
 
     except Exception as e:
         logger.error("Error fetching email: %s", e)
