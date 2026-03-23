@@ -102,15 +102,16 @@ async def code(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await update.message.reply_text(f"📭 No emails found addressed to *{target_email}*.", parse_mode="Markdown")
             return
 
-        msg = (
-            f"📧 *Latest email for {target_email}*\n\n"
-            f"*From:* {result['sender']}\n"
-            f"*Date:* {result['date']}\n"
-            f"*Subject:* {result['subject']}\n\n"
-            f"*Body:*\n{result['body'][:1500]}"
-        )
-        if len(result["body"]) > 1500:
-            msg += "\n\n_(message truncated)_"
+        code_found = extract_code(result["body"])
+
+        if code_found:
+            msg = f"✅ *Code:* `{code_found}`"
+        else:
+            msg = (
+                f"⚠️ No 6-digit code found in the latest email for `{target_email}`\n\n"
+                f"*Subject:* {result['subject']}\n"
+                f"*From:* {result['sender']}"
+            )
 
         await update.message.reply_text(msg, parse_mode="Markdown")
 
