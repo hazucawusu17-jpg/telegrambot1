@@ -23,6 +23,12 @@ logger = logging.getLogger(__name__)
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 db = Database()
 
+import re
+
+def extract_code(body: str) -> str | None:
+    """Extract a 6-digit code from the email body."""
+    match = re.search(r'\b(\d{6})\b', body)
+    return match.group(1) if match else None
 
 # ─────────────────────────────────────────────
 # Helpers
@@ -90,17 +96,21 @@ async def code(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await update.message.reply_text(f"📭 No emails found addressed to *{target_email}*.", parse_mode="Markdown")
             return
 
-        msg = (
-            f"📧 *Latest email for {target_email}*\n\n"
-            f"*From:* {result['sender']}\n"
-            f"*Date:* {result['date']}\n"
-            f"*Subject:* {result['subject']}\n\n"
-            f"*Body:*\n{result['body'][:1500]}"
-        )
-        if len(result["body"]) > 1500:
-            msg += "\n\n_(message truncated)_"
+        code_found = extract_code(result["body"])
 
-        await update.message.reply_text(msg, parse_mode="Markdown")
+if code_found:
+    msg = (
+        f"✅ *Code for* `{target_email}`\n\n"
+        f"`{code_found}`"
+    )
+else:
+    msg = (
+        f"⚠️ No code found in the latest email for `{target_email}`\n\n"
+        f"*Subject:* {result['subject']}\n"
+        f"*From:* {result['sender']}"
+    )
+
+await update.message.reply_text(msg, parse_mode="Markdown")
 
     except Exception as e:
         logger.error("Error fetching email: %s", e)
