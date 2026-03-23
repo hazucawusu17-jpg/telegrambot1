@@ -96,32 +96,28 @@ async def code(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     await update.message.reply_text(f"🔍 Searching latest code for *{target_email}*…", parse_mode="Markdown")
 
-    try:
+     try:
         result = fetch_latest_email_for_address(target_email)
         if result is None:
             await update.message.reply_text(f"📭 No emails found addressed to *{target_email}*.", parse_mode="Markdown")
             return
 
-        code_found = extract_code(result["body"])
-
-       if code_found:
-    msg = f"✅ Code: `{code_found}`"
-else:
-    msg = (
-        f"⚠️ No code found. Please try resending the code. `{target_email}`\n\n"
-        f"*Subject:* {result['subject']}\n"
-        f"*From:* {result['sender']}"
-    )
-
-await update.message.reply_text(msg, parse_mode="Markdown")
-
-await update.message.reply_text(msg, parse_mode="Markdown")
+        msg = (
+            f"📧 *Latest email for {target_email}*\n\n"
+            f"*From:* {result['sender']}\n"
+            f"*Date:* {result['date']}\n"
+            f"*Subject:* {result['subject']}\n\n"
+            f"*Body:*\n{result['body'][:1500]}"
+        )
+        if len(result["body"]) > 1500:
+            msg += "\n\n_(message truncated)_"
 
         await update.message.reply_text(msg, parse_mode="Markdown")
 
     except Exception as e:
         logger.error("Error fetching email: %s", e)
         await update.message.reply_text("⚠️ An error occurred while fetching the email. Please try again later.")
+
 
 
 # ─────────────────────────────────────────────
