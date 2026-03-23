@@ -173,7 +173,7 @@ async def listmails(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not emails:
         await update.message.reply_text("📭 No email addresses registered yet.")
         return
-    lines = [f"• `{e['email']}` (added by {e['added_by']})" for e in emails]
+    lines = [f"• `{e['email']}`" for e in emails]
     await update.message.reply_text("📋 *Registered emails:*\n" + "\n".join(lines), parse_mode="Markdown")
 
 
