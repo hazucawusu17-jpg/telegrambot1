@@ -27,7 +27,7 @@ import re
 
 def extract_code(body: str) -> str | None:
     """Extract a 6-digit code from the email body."""
-    match = re.search(r'\b(\d{6})\b', body)
+    match = re.search(r'\b(\d{4})\b', body)
     return match.group(1) if match else None
 
 # ─────────────────────────────────────────────
@@ -107,11 +107,7 @@ async def code(update: Update, context: ContextTypes.DEFAULT_TYPE):
         if code_found:
             msg = f"✅ *Code:* `{code_found}`"
         else:
-            msg = (
-                f"⚠️ No 6-digit code found in the latest email for `{target_email}`\n\n"
-                f"*Subject:* {result['subject']}\n"
-                f"*From:* {result['sender']}"
-            )
+           msg = "⚠️ No code found. Please try resending the code."
 
         await update.message.reply_text(msg, parse_mode="Markdown")
 
