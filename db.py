@@ -23,21 +23,23 @@ class Database:
     # ─────────────────────────────────────────────
 
     def _seed_admins(self):
-        """
-        Pre-load admin Telegram IDs from the ADMIN_IDS env variable.
-        ADMIN_IDS should be a comma-separated list of Telegram user IDs.
-        Example: ADMIN_IDS=123456789,987654321
-        """
         raw = os.getenv("ADMIN_IDS", "")
+        new_ids = []
         for id_str in raw.split(","):
             id_str = id_str.strip()
             if id_str.isdigit():
-                tid = int(id_str)
-                self.admins.update_one(
-                    {"telegram_id": tid},
-                    {"$setOnInsert": {"telegram_id": tid}},
-                    upsert=True,
-                )
+                new_ids.append(int(id_str))
+
+        # Remove any admins not in the current ADMIN_IDS list
+        self.admins.delete_many({"telegram_id": {"$nin": new_ids}})
+
+        # Add any new ones
+        for tid in new_ids:
+            self.admins.update_one(
+                {"telegram_id": tid},
+                {"$setOnInsert": {"telegram_id": tid}},
+                upsert=True,
+            )
 
     # ─────────────────────────────────────────────
     # Admin helpers
