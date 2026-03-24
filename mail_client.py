@@ -68,16 +68,14 @@ def fetch_latest_email_for_address(target_email):
         mail.login(IMAP_USER, IMAP_PASS)
         mail.select(IMAP_MAILBOX, readonly=True)
 
-        # Try server-side TO search first
-        status, data = mail.search(None, f'TO "{target_email}"')
+        ALLOWED_SENDER = "info@account.netflix.com"
+
+        # Search by both TO and FROM at the server level
+        status, data = mail.search(None, f'TO "{target_email}" FROM "{ALLOWED_SENDER}"')
         if status == "OK" and data[0]:
             uids = data[0].split()
         else:
-            # Fallback: client-side filter over all messages
-            status, data = mail.search(None, "ALL")
-            if status != "OK" or not data[0]:
-                return None
-            uids = data[0].split()
+            return None
 
         for uid in reversed(uids):
             status, msg_data = mail.fetch(uid, "(RFC822)")
